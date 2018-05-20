@@ -12,6 +12,7 @@ import (
 	"github.com/anacrolix/dht"
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/metainfo"
+	"golang.org/x/time/rate"
 )
 
 //the Engine Cloud Torrent engine, backed by anacrolix/torrent
@@ -50,6 +51,17 @@ func (e *Engine) Configure(c Config) error {
 		Seed:       c.EnableSeeding,
 	}
 	tc.DisableEncryption = c.DisableEncryption
+
+	if c.UploadLimitKb == -1 {
+		tc.UploadRateLimiter = rate.NewLimiter(rate.Inf, 0)
+	} else {
+		tc.UploadRateLimiter = rate.NewLimiter(rate.Limit(c.UploadLimitKb<<10), c.UploadLimitKb<<10)
+	}
+	if c.DownloadLimitKb == -1 {
+		tc.DownloadRateLimiter = rate.NewLimiter(rate.Inf, 0)
+	} else {
+		tc.DownloadRateLimiter = rate.NewLimiter(rate.Limit(c.DownloadLimitKb<<10), c.DownloadLimitKb<<10)
+	}
 
 	client, err := torrent.NewClient(&tc)
 	if err != nil {

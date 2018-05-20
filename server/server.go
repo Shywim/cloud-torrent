@@ -98,6 +98,8 @@ func (s *Server) Run(version string) error {
 		DownloadDirectory: "./downloads",
 		EnableUpload:      true,
 		AutoStart:         true,
+		DownloadLimitKb:   -1,
+		UploadLimitKb:     -1,
 	}
 	if _, err := os.Stat(s.ConfigPath); err == nil {
 		if b, err := ioutil.ReadFile(s.ConfigPath); err != nil {
